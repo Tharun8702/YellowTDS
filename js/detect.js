@@ -221,11 +221,22 @@ class BotDetector {
 
   checkPlugins() {
     try {
-      if (!this.isMobileDevice() && navigator.plugins.length === 0) {
+      if (!this.isMobileDevice()) {
+        if (navigator.plugins.length > 0) {
+          this.log('Plugins check passed');
+          return true;
+        }
+        // Chrome 76+ intentionally hides plugin info (length always 0)
+        const ua = navigator.userAgent.toLowerCase();
+        const isChrome = /chrome|crios/.test(ua) && !/edge|opr|edg/.test(ua);
+        if (isChrome) {
+          this.log('Chrome detected, plugins API is hidden, skipping test');
+          return true;
+        }
         this.log('No browser plugins found on non-mobile device');
         return false;
       }
-      this.log('Plugins check passed');
+      this.log('Plugins check passed (mobile)');
       return true;
     } catch (e) {
       this.log('Failed to check plugins: ' + e);

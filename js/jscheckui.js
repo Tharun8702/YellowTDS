@@ -4,8 +4,15 @@ let initUIfunc = function () {
     const statusBar = document.getElementById('statusBar');
     const timeoutDisplay = document.getElementById('timeoutDisplay');
     const progressFill = document.getElementById('progressFill');
+    const interactivePrompt = document.getElementById('interactive-prompt');
 
     let countdownInterval;
+
+    function hasInteractiveTests() {
+        const interactive = ['pointerdown', 'keydown'];
+        return window.botDetector && window.botDetector.selectedTests &&
+            window.botDetector.selectedTests.some(t => interactive.includes(t));
+    }
 
     function initializeUI() {
         if (!window.botDetector || !window.botDetector.selectedTests) {
@@ -25,6 +32,10 @@ let initUIfunc = function () {
         if (progressFill) {
             progressFill.style.animationDuration = (timeoutSecs + 1) + 's';
             progressFill.style.animation = 'progress ' + (timeoutSecs + 1) + 's ease-in-out forwards';
+        }
+
+        if (interactivePrompt && hasInteractiveTests()) {
+            interactivePrompt.style.display = 'flex';
         }
 
         startCountdown();
