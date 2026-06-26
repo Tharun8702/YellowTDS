@@ -14,22 +14,30 @@ let initUIfunc = function () {
             window.botDetector.selectedTests.some(t => interactive.includes(t));
     }
 
+    function isWaitingForInteraction() {
+        return window.botDetector && hasInteractiveTests();
+    }
+
     function initializeUI() {
         if (!window.botDetector || !window.botDetector.selectedTests) {
             setTimeout(initializeUI, 100);
             return;
         }
 
+        const waitsForInteraction = isWaitingForInteraction();
         const timeoutSecs = Math.floor((window.botDetector.timeout || 5000) / 1000);
         if (timeoutDisplay) {
             timeoutDisplay.textContent = timeoutSecs;
+            if (waitsForInteraction) {
+                timeoutDisplay.parentElement.textContent = 'Click anywhere or press any key to continue';
+            }
         }
 
         if (statusBar) {
-            statusBar.style.display = 'block';
+            statusBar.style.display = waitsForInteraction ? 'none' : 'block';
         }
 
-        if (progressFill) {
+        if (progressFill && !waitsForInteraction) {
             progressFill.style.animationDuration = (timeoutSecs + 1) + 's';
             progressFill.style.animation = 'progress ' + (timeoutSecs + 1) + 's ease-in-out forwards';
         }
@@ -43,6 +51,7 @@ let initUIfunc = function () {
 
     function startCountdown() {
         if (!window.botDetector || !window.botDetector.timeout) return;
+        if (isWaitingForInteraction()) return;
 
         let timeLeft = Math.floor(window.botDetector.timeout / 1000);
         if (!countdown) return;

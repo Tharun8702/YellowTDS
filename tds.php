@@ -96,21 +96,27 @@ class Tds
         } else {
             $jscheck_start_time = session_read('jscheck_pending');
             $current_time = time();
-            // Convert from milliseconds to seconds
-            $max_execution_time = $c->black->jsBotDetection->timeout / 1000;
-            // Add 5 second buffer
-            $allowed_time = $jscheck_start_time + $max_execution_time + 5;
+            
+            $interactiveEvents = ['pointerdown', 'keydown'];
+            $hasInteractive = !empty(array_intersect($c->black->jsBotDetection->events, $interactiveEvents));
+            
+            if (!$hasInteractive) {
+                // Convert from milliseconds to seconds
+                $max_execution_time = $c->black->jsBotDetection->timeout / 1000;
+                // Add 5 second buffer
+                $allowed_time = $jscheck_start_time + $max_execution_time + 5;
 
-            if ($current_time > $allowed_time) {
-                // Attempt to pass JS check after timeout
-                $db->add_white_click(FiltrationCore::get_click_params(), 'jscheck_scam_timeout', $dbCamp['id']);
-                session_remove('jscheck_pending');
-                if (DebugMethods::on()) {
-                    $action = new JsAction("white", "js", "console.log('Debug: JS check scam - timeout exceeded');");
-                } else {
-                    $action = new JsAction("white", "error", "");
+                if ($current_time > $allowed_time) {
+                    // Attempt to pass JS check after timeout
+                    $db->add_white_click(FiltrationCore::get_click_params(), 'jscheck_scam_timeout', $dbCamp['id']);
+                    session_remove('jscheck_pending');
+                    if (DebugMethods::on()) {
+                        $action = new JsAction("white", "js", "console.log('Debug: JS check scam - timeout exceeded');");
+                    } else {
+                        $action = new JsAction("white", "error", "");
+                    }
+                    return $action;
                 }
-                return $action;
             }
             
             // All security checks passed - remove pending flag and allow black

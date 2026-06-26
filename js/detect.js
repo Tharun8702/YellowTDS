@@ -118,11 +118,8 @@ class BotDetector {
       this.setupInteractiveTest(test);
     });
 
-    this.timeoutId = setTimeout(() => {
-      this.log('Interactive tests timed out, proceeding anyway');
-      this.removeAllEventListeners();
-      this.passfunc();
-    }, this.timeout);
+    this.timeoutId = -1;
+    this.log('Waiting indefinitely for user interaction');
   }
 
   checkInteractiveTestsComplete() {
