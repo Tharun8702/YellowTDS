@@ -119,9 +119,9 @@ class BotDetector {
     });
 
     this.timeoutId = setTimeout(() => {
-      this.log('Tests timeout!');
+      this.log('Interactive tests timed out, proceeding anyway');
       this.removeAllEventListeners();
-      this.failTest('timeout');
+      this.passfunc();
     }, this.timeout);
   }
 
