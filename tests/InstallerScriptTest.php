@@ -49,7 +49,7 @@ class InstallerScriptTest extends TestCase
     public function testInstallerSupportsCurlPipeRepositoryDownload(): void
     {
         $this->assertStringContainsString('YELLOWTDS_REPO_ZIP', $this->script);
-        $this->assertStringContainsString('https://github.com/dvygolov/YellowTDS/archive/refs/heads/main.zip', $this->script);
+        $this->assertStringContainsString('https://github.com/Tharun8702/YellowTDS/archive/refs/heads/multipleconfigs.zip', $this->script);
         $this->assertStringContainsString('Installer was not run from a YellowTDS checkout; downloading repository ZIP', $this->script);
         $this->assertStringContainsString('Downloaded repository ZIP does not look like YellowTDS', $this->script);
     }
