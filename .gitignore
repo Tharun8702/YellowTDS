@@ -14,3 +14,10 @@ bases/*.mmdb
 bases/test.txt
 agents.md
 migrate_userid_clickid.php
+*.db
+.DS_Store
+update_bots.py
+createlist.py
+firewall_rules.txt
+all-safe-ips.txt
+bot_ips.json

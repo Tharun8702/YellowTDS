@@ -21,10 +21,15 @@ class BotDetector {
       DEVICEMOTION: 'devicemotion',
       DEVICEORIENTATION: 'deviceorientation',
       TIMEZONE: 'timezone',
-      AUDIOCONTEXT: 'audiocontext'
+      AUDIOCONTEXT: 'audiocontext',
+      WEBDRIVER: 'webdriver',
+      PLUGINS: 'plugins',
+      WEBGL: 'webgl',
+      CANVAS: 'canvas',
+      SCREEN: 'screen'
     };
 
-    this.nonInteractiveTests = [this.Tests.TIMEZONE, this.Tests.AUDIOCONTEXT];
+    this.nonInteractiveTests = [this.Tests.TIMEZONE, this.Tests.AUDIOCONTEXT, this.Tests.WEBDRIVER, this.Tests.PLUGINS, this.Tests.WEBGL, this.Tests.CANVAS, this.Tests.SCREEN];
     this.interactiveTestNames = [this.Tests.KEYDOWN, this.Tests.POINTERDOWN, this.Tests.DEVICEMOTION, this.Tests.DEVICEORIENTATION];
   }
 
@@ -49,6 +54,46 @@ class BotDetector {
       this.log('Checking audio context...');
       if (!this.checkAudioContext()) {
         this.failTest('audiocontext');
+        return false;
+      }
+    }
+
+    if (this.selectedTests.includes(this.Tests.WEBDRIVER)) {
+      this.log('Checking webdriver flag...');
+      if (!this.checkWebDriver()) {
+        this.failTest('webdriver');
+        return false;
+      }
+    }
+
+    if (this.selectedTests.includes(this.Tests.PLUGINS)) {
+      this.log('Checking browser plugins...');
+      if (!this.checkPlugins()) {
+        this.failTest('no_plugins');
+        return false;
+      }
+    }
+
+    if (this.selectedTests.includes(this.Tests.WEBGL)) {
+      this.log('Checking WebGL renderer...');
+      if (!this.checkWebGL()) {
+        this.failTest('webgl');
+        return false;
+      }
+    }
+
+    if (this.selectedTests.includes(this.Tests.CANVAS)) {
+      this.log('Checking canvas rendering...');
+      if (!this.checkCanvas()) {
+        this.failTest('canvas');
+        return false;
+      }
+    }
+
+    if (this.selectedTests.includes(this.Tests.SCREEN)) {
+      this.log('Checking screen resolution...');
+      if (!this.checkScreen()) {
+        this.failTest('screen');
         return false;
       }
     }
@@ -158,6 +203,119 @@ class BotDetector {
       this.log('Audio context failed: ' + e);
       return false;
     }
+  }
+
+  checkWebDriver() {
+    try {
+      if (navigator.webdriver) {
+        this.log('navigator.webdriver is true');
+        return false;
+      }
+      this.log('navigator.webdriver check passed');
+      return true;
+    } catch (e) {
+      this.log('Failed to check webdriver: ' + e);
+      return false;
+    }
+  }
+
+  checkPlugins() {
+    try {
+      if (!this.isMobileDevice() && navigator.plugins.length === 0) {
+        this.log('No browser plugins found on non-mobile device');
+        return false;
+      }
+      this.log('Plugins check passed');
+      return true;
+    } catch (e) {
+      this.log('Failed to check plugins: ' + e);
+      return false;
+    }
+  }
+
+  checkWebGL() {
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) {
+        this.log('WebGL not available');
+        return false;
+      }
+      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+      if (!debugInfo) {
+        this.log('WebGL debug info not available');
+        return true;
+      }
+      const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL).toLowerCase();
+      const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL).toLowerCase();
+      this.log('WebGL vendor: ' + vendor + ', renderer: ' + renderer);
+      const headlessIndicators = ['swiftshader', 'llvmpipe', 'mesa', 'google'];
+      const isHeadless = headlessIndicators.some(i => renderer.includes(i) || vendor.includes(i));
+      if (isHeadless) {
+        this.log('Headless WebGL renderer detected');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      this.log('Failed to check WebGL: ' + e);
+      return false;
+    }
+  }
+
+  checkCanvas() {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 200;
+      canvas.height = 50;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        this.log('Canvas 2D context not available');
+        return false;
+      }
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillStyle = '#f60';
+      ctx.fillRect(125, 1, 62, 20);
+      ctx.fillStyle = '#069';
+      ctx.fillText('BotDetectorCanvasTest', 2, 15);
+      const dataUrl = canvas.toDataURL();
+      if (!dataUrl || dataUrl === 'data:,') {
+        this.log('Canvas produced empty output');
+        return false;
+      }
+      this.log('Canvas check passed');
+      return true;
+    } catch (e) {
+      this.log('Failed to check canvas: ' + e);
+      return false;
+    }
+  }
+
+  checkScreen() {
+    try {
+      const w = screen.width;
+      const h = screen.height;
+      const cd = screen.colorDepth;
+      const pd = screen.pixelDepth;
+      this.log('Screen: ' + w + 'x' + h + ' colorDepth:' + cd + ' pixelDepth:' + pd);
+      if ((w === 800 && h === 600) || (w === 1024 && h === 768)) {
+        this.log('Headless default resolution detected');
+        return false;
+      }
+      if (cd === 0 || pd === 0) {
+        this.log('Suspicious screen color/pixel depth');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      this.log('Failed to check screen: ' + e);
+      return false;
+    }
+  }
+
+  isMobileDevice() {
+    const ua = navigator.userAgent.toLowerCase();
+    return /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(ua);
   }
 
   setupInteractiveTest(test) {

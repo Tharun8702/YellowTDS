@@ -69,6 +69,17 @@ class JsAction extends CloakerAction
         //to change the existing white or to redirect
         //just stay where we are and pretend we are JQuery, haha
         if ($this->click_type === 'white') {
+            if ($this->action === 'html' || $this->action === 'html_content') {
+                $js_code = $this->content_replace();
+                echo $js_code;
+                return;
+            }
+            if ($this->action === 'redirect') {
+                $url = urldecode($this->value);
+                $js_code = $this->meta_redirect();
+                echo $js_code;
+                return;
+            }
             $jq = get("https://code.jquery.com/jquery-3.6.1.min.js");
             echo $jq['content'];
             return;
@@ -76,6 +87,7 @@ class JsAction extends CloakerAction
         
         switch ($this->action){
             case 'html_content':
+            case 'html':
                 $js_code = $this->content_replace();
                 break;
             case 'html_iframe':

@@ -384,7 +384,7 @@ global $c, $db, $campId;
                     <div class="row">
                         <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Tests:</label></div>
                         <div class="col-lg-9"><div class="ywb-radios">
-                            <?php foreach (['pointerdown' => 'Mouse click / Touch start', 'keydown' => 'Text typing', 'devicemotion' => 'Device motion (Android only)', 'deviceorientation' => 'Device orientation (Android only)', 'audiocontext' => 'Audio engine existence', 'timezone' => 'Time zone'] as $ev => $evLabel) { ?>
+                            <?php foreach (['pointerdown' => 'Mouse click / Touch start', 'keydown' => 'Text typing', 'devicemotion' => 'Device motion (Android only)', 'deviceorientation' => 'Device orientation (Android only)', 'audiocontext' => 'Audio engine existence', 'timezone' => 'Time zone', 'webdriver' => 'WebDriver flag (Selenium/Puppeteer)', 'plugins' => 'Browser plugins exist', 'webgl' => 'WebGL renderer (real GPU)', 'canvas' => 'Canvas rendering', 'screen' => 'Screen resolution sanity'] as $ev => $evLabel) { ?>
                             <label class="ywb-radio-label"><input type="checkbox" name="black.jsbotdetection.events[]" value="<?= $ev ?>" <?= in_array($ev, $jbd->events) ? 'checked' : '' ?> <?= $ev === 'timezone' ? 'onchange="(document.getElementById(\'jbd-tz\').style.display = this.checked ? \'block\' : \'none\')"' : '' ?> /> <?= $evLabel ?></label>
                             <?php } ?>
                         </div></div>

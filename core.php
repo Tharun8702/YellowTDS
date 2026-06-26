@@ -49,6 +49,7 @@ class FiltrationCore
         ClientHints::requestClientHints();
         $a = [];
         $a['ua'] = $prefill['tds_ua'] ?? $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+        $a['useragent'] = $a['ua'];
         $a['referer'] = $prefill['tds_ref'] ?? $_SERVER['HTTP_REFERER'] ?? '';
         $lang = $prefill['tds_lang'] ?? $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
         $a['lang'] = LanguageDetector::detect($lang);
@@ -64,17 +65,17 @@ class FiltrationCore
         $phpFileCache = new Doctrine\Common\Cache\PhpFileCache($cacheDir);
         $dd->setCache(new DoctrineBridge($phpFileCache));
         $dd->parse();
-        $clientInfo = $dd->getClient();
-        $a['client'] = $clientInfo['name'];
-        $a['clientver'] = $clientInfo['version'];
+        $clientInfo = $dd->getClient() ?? [];
+        $a['client'] = $clientInfo['name'] ?? '';
+        $a['clientver'] = $clientInfo['version'] ?? '';
         DebugMethods::stop("YWBCoreDeviceDetector");
 
-        $osInfo = $dd->getOs();
-        $a['os'] = $osInfo['name'];
-        $a['osver'] = $osInfo['version'];
-        $a['device'] = $dd->getDeviceName();
-        $a['brand'] = $dd->getBrandName();
-        $a['model'] = $dd->getModel();
+        $osInfo = $dd->getOs() ?? [];
+        $a['os'] = $osInfo['name'] ?? '';
+        $a['osver'] = $osInfo['version'] ?? '';
+        $a['device'] = $dd->getDeviceName() ?? '';
+        $a['brand'] = $dd->getBrandName() ?? '';
+        $a['model'] = $dd->getModel() ?? '';
 
         DebugMethods::start("YWBCoreMaxMind");
         $a['ip'] = getip($prefill['tds_ip'] ?? $_SERVER);
@@ -133,7 +134,7 @@ class FiltrationCore
             'host'
         ];
         if (in_array($curParamName, $standardParams)) {
-            $paramValue = $this->click_params[$curParamName];
+            $paramValue = $this->click_params[$curParamName] ?? '';
             $check = $this->operator($val, $filter['operator'], $paramValue);
             if ($check) {
                 $this->matched_filters[] = $curParamName;
@@ -176,8 +177,10 @@ class FiltrationCore
         return false;
     }
 
-    private function operator(string $val, string $operator, string $paramValue): bool
+    private function operator($val, string $operator, $paramValue): bool
     {
+        $val = (string)$val;
+        $paramValue = (string)$paramValue;
         $check = true;
         switch ($operator) {
             case 'param_in':
@@ -251,7 +254,14 @@ class FiltrationCore
 
     private function split_filter_values(string $val): array
     {
-        return array_map('trim', explode(',', $val));
+        return array_filter(
+            array_map(
+                function($v){
+                    return strtolower(trim($v));
+                },
+                explode(',', $val)
+            )
+        );
     }
 
     private function match_url_param_filter(array $filter): bool
@@ -391,7 +401,7 @@ class FiltrationCore
         if (!file_exists($base_full_path)) {
             return false;
         }
-        $cidr = file($base_full_path, FILE_IGNORE_NEW_LINES);
+        $cidr = array_map('trim', file($base_full_path, FILE_IGNORE_NEW_LINES));
         return IpUtils::checkIp($ip, $cidr);
     }
 }

@@ -817,7 +817,7 @@ class Db
     public function add_trafficback_click($data): bool
     {
         $click = $this->prepare_click_data($data);
-        $query = "INSERT INTO trafficback (time, ip, country, lang, os, osver, brand, model, isp, client, clientver, ua, params) VALUES (:time, :ip, :country, :lang, :os, :osver, :brand, :model, :isp, :client, :clientver, :ua, :params)";
+        $query = "INSERT INTO trafficback (time, ip, country, lang, os, osver, device, brand, model, isp, client, clientver, ua, params) VALUES (:time, :ip, :country, :lang, :os, :osver, :device, :brand, :model, :isp, :client, :clientver, :ua, :params)";
         return $this->add_click($query, $click);
     }
 
@@ -825,7 +825,7 @@ class Db
     {
         $click = $this->prepare_click_data($data, $campId);
         $click['reason'] = $reason;
-        $query = "INSERT INTO blocked (campaign_id, time, ip, country, lang, os, osver, brand, model, isp, client, clientver, ua, reason, params) VALUES (:campaign_id, :time, :ip, :country, :lang, :os, :osver, :brand, :model, :isp, :client, :clientver, :ua, :reason, :params)";
+        $query = "INSERT INTO blocked (campaign_id, time, ip, country, lang, os, osver, device, brand, model, isp, client, clientver, ua, reason, params) VALUES (:campaign_id, :time, :ip, :country, :lang, :os, :osver, :device, :brand, :model, :isp, :client, :clientver, :ua, :reason, :params)";
         return $this->add_click($query, $click);
     }
 

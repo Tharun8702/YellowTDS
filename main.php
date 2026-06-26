@@ -9,6 +9,7 @@ require_once __DIR__ . '/redirect.php';
 require_once __DIR__ . '/abtest.php';
 require_once __DIR__ . '/requestfunc.php';
 require_once __DIR__ . '/actions.php';
+require_once __DIR__ . '/js/obfuscator.php';
 
 function traficback(array $clickParams): CloakerAction
 {

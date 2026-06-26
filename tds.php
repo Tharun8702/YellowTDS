@@ -87,19 +87,17 @@ class Tds
             return $action;
         }
 
+        $c = new Campaign($dbCamp['id'], $dbCamp['settings']);
+
         //This means that the user didn't pass JS checks
         if (isset($_GET['reason'])) {
-            $added = $db->add_white_click(FiltrationCore::get_click_params(), $_GET['reason'], $dbCamp['id']);
-            if (DebugMethods::on()) {
-                $msg = ($added ? "console.log('Debug: White click logged.');" : "console.log('Debug: Error adding white click!');");
-                $action = new JsAction("white", "js", $msg);
-            } else {
-                $action = new JsAction("white", "error", "");
-            }
+            session_remove('jscheck_pending');
+            $db->add_white_click(FiltrationCore::get_click_params(), $_GET['reason'], $dbCamp['id']);
+            $whiteAction = white($c);
+            $action = JsAction::FromCloakerAction($whiteAction);
         } else {
             $jscheck_start_time = session_read('jscheck_pending');
             $current_time = time();
-            $c = new Campaign($dbCamp['id'], $dbCamp['settings']);
             // Convert from milliseconds to seconds
             $max_execution_time = $c->black->jsBotDetection->timeout / 1000;
             // Add 5 second buffer

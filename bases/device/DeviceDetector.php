@@ -945,6 +945,20 @@ class DeviceDetector
         }
 
         /**
+         * Apple devices running iOS that were not specifically identified are smartphones
+         */
+        if (null === $this->device && 'Apple' === $this->brand && 'iOS' === $osName) {
+            $this->device = AbstractDeviceParser::DEVICE_TYPE_SMARTPHONE;
+        }
+
+        /**
+         * Apple devices running iPadOS that were not specifically identified are tablets
+         */
+        if (null === $this->device && 'Apple' === $this->brand && 'iPadOS' === $osName) {
+            $this->device = AbstractDeviceParser::DEVICE_TYPE_TABLET;
+        }
+
+        /**
          * All devices containing VR fragment are assumed to be a wearable
          */
         if (null === $this->device && $this->hasAndroidVRFragment()) {
