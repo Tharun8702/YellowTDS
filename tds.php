@@ -48,15 +48,20 @@ class Tds
             $c = new Campaign($dbCamp['id'], $dbCamp['settings']);
             $clkr = new FiltrationCore($prefill);
 
-            if ($clkr->click_matches_filters($c->white->filters)) {
+            $reason = $prefill['reason'] ?? '';
+            if ($reason !== '') {
+                $db->add_white_click($clkr->click_params, $reason, $c->campaignId);
+                $action = white($c);
+            } elseif ($clkr->click_matches_filters($c->white->filters)) {
                 $db->add_white_click($clkr->click_params, $clkr->block_reason, $c->campaignId);
                 $action = white($c);
             } else {
                 $jscheck_passed = session_read('jscheck_passed');
-                if ($c->black->jsBotDetection->enabled && is_null($jscheck_passed)) {
+                if ($c->black->jsBotDetection->enabled && is_null($jscheck_passed) && empty($prefill)) {
                     $action = jscheck($c);
                     $action->action = 'html_content';
                 } else {
+                    session_write('jscheck_passed', true);
                     $flowIndex = self::pick_flow_index($clkr, $c->black->flows);
                     if ($flowIndex === null) {
                         $action = traficback($clkr->click_params);

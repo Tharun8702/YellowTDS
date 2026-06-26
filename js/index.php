@@ -25,6 +25,7 @@ else {
     if (isset($_GET['tds_qs']))
         $prefill['tds_qs'] = base64_decode($_GET['tds_qs']);
     $prefill['tds_ref'] = $_GET['tds_ref'] ?? '';
+    $prefill['reason'] = $_GET['reason'] ?? '';
     $action = Tds::getJsAction($prefill);
 }
 $action->perform();
