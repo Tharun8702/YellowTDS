@@ -62,10 +62,8 @@ class Tds
                         $action = traficback($clkr->click_params);
                     } else {
                         $action = black($c, $flowIndex, $clkr->click_params);
-                        if ($c->black->jsconnectAction === 'iframe') {
-                            $action->action = 'html_iframe';
-                        } else {
-                            $action->action = 'html_content';
+                        if ($action->action === 'html') {
+                            $action->action = $c->black->jsconnectAction === 'iframe' ? 'html_iframe' : 'html_content';
                         }
                     }
                 }
@@ -126,10 +124,8 @@ class Tds
             } else {
                 $action = black($c, $flowIndex, $clkr->click_params);
                 $action = JsAction::FromCloakerAction($action);
-                if ($c->black->jsconnectAction === 'iframe') {
-                    $action->action = 'html_iframe';
-                } else {
-                    $action->action = 'html_content';
+                if ($action->action === 'html') {
+                    $action->action = $c->black->jsconnectAction === 'iframe' ? 'html_iframe' : 'html_content';
                 }
             }
         }
